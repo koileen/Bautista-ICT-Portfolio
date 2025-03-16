@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Image Carousel</title>
+    <link rel="stylesheet" href="fourth-quarter-format.css">
+</head>
+<body>
+    <h1 style="text-align:center;font-family:brush script mt;font-size: 65px;color:white;"> ˏˋ°•*⁀➷   fourth quarter </h1>
+    <nav class="nav">
+        <a href="#" class="nav-item is-active" data-category="home" active-color="white">Streetdance</a>
+        <a href="#" class="nav-item" data-category="about" active-color="white">BOTB</a>
+        <a href="#" class="nav-item" data-category="testimonials" active-color="white">Art Fair</a>
+        <a href="#" class="nav-item" data-category="blog" active-color="white">SSLG Elections</a>
+        <span class="nav-indicator"></span>
+    </nav>      
+
+    <div class="carousel">
+        <div class="slides">
+            <!-- Images will be inserted dynamically here -->
+        </div>
+        <div class="controls">
+            <div class="control prev-slide">&#9668;</div>
+            <div class="control next-slide">&#9658;</div>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; width: 100%; margin-top: 20px;">
+        <p style="font-family: Comic Sans MS; color: white; font-size: 20px; margin-right: 20px;">
+            <a href="home.html" style="color: white; text-decoration: none;">Back</a>
+        </p>
+    </div>
+
+    <script>
+        const imageSets = {
+            home: [
+                "streetdance/1.jpg",
+                "streetdance/2.1.jpg",
+                "streetdance/3.1.jpg"
+            ],
+            about: [
+                "botb/1.1.jpg",
+                "botb/2.1.jpg",
+                "botb/3.1.jpg"
+            ],
+            testimonials: [
+                "artfair/1.1.jpg"
+            ],
+            blog: [
+                "elections/election1.jpg",
+                "elections/election2.jpg"
+            ]
+        };
+
+        let currentCategory = "home";
+        const slidesContainer = document.querySelector(".slides");
+        const indicator = document.querySelector('.nav-indicator');
+        const items = document.querySelectorAll('.nav-item');
+        let currentIndex = 0;
+        let totalSlides = 0;
+
+        function loadImages(category) {
+            slidesContainer.innerHTML = "";
+            const images = imageSets[category];
+
+            images.forEach((src, index) => {
+                const img = document.createElement("img");
+                img.src = src;
+                img.alt = `Slide ${index + 1}`;
+                img.classList.add("slide");
+                slidesContainer.appendChild(img);
+            });
+
+            currentIndex = 0;
+            totalSlides = images.length;
+            updateSlidePosition();
+        }
+
+        function updateSlidePosition() {
+            slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+
+        function changeSlide(next = true) {
+            if (next) {
+                currentIndex = (currentIndex + 1) % totalSlides;
+            } else {
+                currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+            }
+            updateSlidePosition();
+        }
+
+        function handleIndicator(el) {
+            items.forEach(item => {
+                item.classList.remove('is-active');
+                item.removeAttribute('style');
+            });
+
+            indicator.style.width = `${el.offsetWidth}px`;
+            indicator.style.left = `${el.offsetLeft}px`;
+            indicator.style.backgroundColor = el.getAttribute('active-color');
+
+            el.classList.add('is-active');
+            el.style.color = el.getAttribute('active-color');
+        }
+
+        items.forEach((item) => {
+            item.addEventListener('click', (e) => { 
+                e.preventDefault();
+                const category = e.target.getAttribute("data-category");
+                if (category !== currentCategory) {
+                    currentCategory = category;
+                    loadImages(category);
+                }
+                handleIndicator(e.target);
+            });
+            if (item.classList.contains('is-active')) {
+                handleIndicator(item);
+                loadImages(item.getAttribute("data-category"));
+            }
+        });
+
+        let autoChange = setInterval(() => changeSlide(true), 3000);
+        const restartAutoSlide = () => {
+            clearInterval(autoChange);
+            autoChange = setInterval(() => changeSlide(true), 3000);
+        };
+
+        document.querySelector(".next-slide").addEventListener("click", function() {
+            changeSlide(true);
+            restartAutoSlide();
+        });
+
+        document.querySelector(".prev-slide").addEventListener("click", function() {
+            changeSlide(false);
+            restartAutoSlide();
+        });
+
+    </script>
+</body>
+</html>
